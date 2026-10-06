@@ -1,4 +1,4 @@
-package cr.ac.una.est.lab1est.model;
+package cr.ac.una.est.lab1est;
 
 import java.util.ArrayList;
 import java.util.Collections;

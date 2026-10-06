@@ -1,6 +1,6 @@
 package cr.ac.una.est.lab1est.controller;
 
-import cr.ac.una.est.lab1est.model.Grafo;
+import cr.ac.una.est.lab1est.Grafo;
 import cr.ac.una.est.lab1est.view.GrafoView;
 import cr.ac.una.est.lab1est.view.MatrizView;
 import cr.ac.una.est.lab1est.view.MenuView;
