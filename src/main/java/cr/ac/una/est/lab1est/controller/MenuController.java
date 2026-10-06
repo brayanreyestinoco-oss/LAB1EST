@@ -5,26 +5,54 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.net.URL;
+
 public class MenuController {
+
+    // =========================================================
+    // ABRIR MATRIZ
+    // =========================================================
 
     @FXML
     private void abrirMatriz() throws Exception {
 
-        FXMLLoader loader =
-                new FXMLLoader(
-                        getClass().getResource(
-                                "/cr.ac.una.est.lab1est/matriz.fxml"
-                        )
+        URL fxml =
+                getClass().getResource(
+                        "/cr/ac/una/est/lab1est/matriz.fxml"
                 );
 
-        Scene scene =
-                new Scene(loader.load());
+        if (fxml == null) {
 
-        scene.getStylesheets().add(
+            throw new IllegalStateException(
+                    "No se encontró matriz.fxml en: " +
+                            "src/main/resources/cr/ac/una/est/lab1est/"
+            );
+        }
+
+
+        FXMLLoader loader =
+                new FXMLLoader(fxml);
+
+
+        Scene scene =
+                new Scene(
+                        loader.load()
+                );
+
+
+        URL css =
                 getClass().getResource(
-                        "/cr.ac.una.est.lab1est/estilos.css"
-                ).toExternalForm()
-        );
+                        "/cr/ac/una/est/lab1est/estilos.css"
+                );
+
+
+        if (css != null) {
+
+            scene.getStylesheets().add(
+                    css.toExternalForm()
+            );
+        }
+
 
         Stage stage =
                 new Stage();
@@ -41,24 +69,51 @@ public class MenuController {
         stage.show();
     }
 
+
+    // =========================================================
+    // ABRIR GRAFO
+    // =========================================================
+
     @FXML
     private void abrirGrafo() throws Exception {
 
-        FXMLLoader loader =
-                new FXMLLoader(
-                        getClass().getResource(
-                                "/cr.ac.una.est.lab1est/grafo.fxml"
-                        )
+        URL fxml =
+                getClass().getResource(
+                        "/cr/ac/una/est/lab1est/grafo.fxml"
                 );
 
-        Scene scene =
-                new Scene(loader.load());
+        if (fxml == null) {
 
-        scene.getStylesheets().add(
+            throw new IllegalStateException(
+                    "No se encontró grafo.fxml en: " +
+                            "src/main/resources/cr/ac/una/est/lab1est/"
+            );
+        }
+
+
+        FXMLLoader loader =
+                new FXMLLoader(fxml);
+
+
+        Scene scene =
+                new Scene(
+                        loader.load()
+                );
+
+
+        URL css =
                 getClass().getResource(
-                        "/cr.ac.una.est.lab1est/estilos.css"
-                ).toExternalForm()
-        );
+                        "/cr/ac/una/est/lab1est/estilos.css"
+                );
+
+
+        if (css != null) {
+
+            scene.getStylesheets().add(
+                    css.toExternalForm()
+            );
+        }
+
 
         Stage stage =
                 new Stage();

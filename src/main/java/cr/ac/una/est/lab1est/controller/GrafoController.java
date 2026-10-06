@@ -7,7 +7,10 @@ import cr.ac.una.est.lab1est.model.Nodo;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -36,58 +39,58 @@ public class GrafoController {
     @FXML
     private Label lblEstado;
 
-    private final Grafo grafo =
-            new Grafo();
+    private final Grafo grafo = new Grafo();
 
     private Nodo nodoSeleccionado;
 
     private boolean modoAgregarNodo = false;
 
-    private final Map<Nodo, Circle>
-            circulos = new HashMap<>();
+    private final Map<Nodo, Circle> circulos = new HashMap<>();
 
-    private final Map<Nodo, Text>
-            textos = new HashMap<>();
+    private final Map<Nodo, Text> textos = new HashMap<>();
 
-    private final Map<Arista, Line>
-            lineas = new HashMap<>();
+    private final Map<Arista, Line> lineas = new HashMap<>();
 
-    private final Map<Arista, Text>
-            textosPesos = new HashMap<>();
+    private final Map<Arista, Text> textosPesos = new HashMap<>();
+
+
+    // =========================================================
+    // INICIALIZACIÓN
+    // =========================================================
 
     @FXML
     private void initialize() {
 
-        panelGrafo.setOnMouseClicked(
-                event -> {
+        panelGrafo.setOnMouseClicked(event -> {
 
-                    if (modoAgregarNodo) {
+            if (!modoAgregarNodo) {
+                return;
+            }
 
-                        double x =
-                                event.getX();
+            double x = event.getX();
+            double y = event.getY();
 
-                        double y =
-                                event.getY();
+            if (x < 35 || y < 35 ||
+                    x > panelGrafo.getWidth() - 35 ||
+                    y > panelGrafo.getHeight() - 35) {
 
-                        if (x > 40 &&
-                                y > 40) {
+                return;
+            }
 
-                            agregarNodo(
-                                    x,
-                                    y
-                            );
+            agregarNodo(x, y);
 
-                            modoAgregarNodo =
-                                    false;
+            modoAgregarNodo = false;
 
-                            lblEstado.setText(
-                                    "Nodo agregado."
-                            );
-                        }
-                    }
-                }
-        );
+            lblEstado.setText(
+                    "Nodo agregado. Puede seleccionar dos nodos para conectarlos."
+            );
+        });
     }
+
+
+    // =========================================================
+    // AGREGAR NODO
+    // =========================================================
 
     @FXML
     private void activarAgregarNodo() {
@@ -99,70 +102,50 @@ public class GrafoController {
         );
     }
 
-    private void agregarNodo(
-            double x,
-            double y) {
+    private void agregarNodo(double x, double y) {
 
-        Nodo nodo =
-                grafo.agregarNodo(
-                        x,
-                        y
-                );
+        Nodo nodo = grafo.agregarNodo(x, y);
 
         crearVisualNodo(nodo);
 
         actualizarResultados();
     }
 
-    private void crearVisualNodo(
-            Nodo nodo) {
 
-        Circle circulo =
-                new Circle(
-                        nodo.getX(),
-                        nodo.getY(),
-                        28
-                );
+    // =========================================================
+    // CREAR VISUAL DEL NODO
+    // =========================================================
 
-        circulo.setFill(
-                Color.WHITE
+    private void crearVisualNodo(Nodo nodo) {
+
+        Circle circulo = new Circle(
+                nodo.getX(),
+                nodo.getY(),
+                28
         );
 
-        circulo.setStroke(
-                Color.BLACK
-        );
-
+        circulo.setFill(Color.WHITE);
+        circulo.setStroke(Color.BLACK);
         circulo.setStrokeWidth(2);
 
-        Text texto =
-                new Text(
-                        nodo.getX() - 5,
-                        nodo.getY() + 6,
-                        String.valueOf(
-                                nodo.getNumero()
-                        )
-                );
+        Text texto = new Text(
+                nodo.getX() - 5,
+                nodo.getY() + 6,
+                String.valueOf(nodo.getNumero())
+        );
 
         texto.setStyle(
                 "-fx-font-size: 17px;" +
                         "-fx-font-weight: bold;"
         );
 
-        circulos.put(
-                nodo,
-                circulo
-        );
+        circulos.put(nodo, circulo);
+        textos.put(nodo, texto);
 
-        textos.put(
-                nodo,
+        panelGrafo.getChildren().addAll(
+                circulo,
                 texto
         );
-
-        panelGrafo.getChildren()
-                .addAll(
-                        circulo,
-                        texto
-                );
 
         configurarNodo(
                 nodo,
@@ -171,105 +154,108 @@ public class GrafoController {
         );
     }
 
+
+    // =========================================================
+    // CONFIGURAR EVENTOS DEL NODO
+    // =========================================================
+
     private void configurarNodo(
             Nodo nodo,
             Circle circulo,
             Text texto) {
 
-        circulo.setOnMouseClicked(
-                event -> {
+        // Seleccionar nodo
+        circulo.setOnMouseClicked(event -> {
 
-                    if (modoAgregarNodo) {
-                        event.consume();
-                        return;
-                    }
+            if (modoAgregarNodo) {
+                event.consume();
+                return;
+            }
 
-                    seleccionarNodo(nodo);
+            seleccionarNodo(nodo);
 
-                    event.consume();
-                }
-        );
+            event.consume();
+        });
 
-        final double[] datos =
-                new double[4];
 
-        circulo.setOnMousePressed(
-                event -> {
+        // Arrastrar nodo
+        final double[] datos = new double[4];
 
-                    datos[0] =
-                            event.getSceneX();
+        circulo.setOnMousePressed(event -> {
 
-                    datos[1] =
-                            event.getSceneY();
+            datos[0] = event.getSceneX();
+            datos[1] = event.getSceneY();
 
-                    datos[2] =
-                            nodo.getX();
+            datos[2] = nodo.getX();
+            datos[3] = nodo.getY();
 
-                    datos[3] =
-                            nodo.getY();
+            event.consume();
+        });
 
-                    event.consume();
-                }
-        );
 
-        circulo.setOnMouseDragged(
-                event -> {
+        circulo.setOnMouseDragged(event -> {
 
-                    double nuevoX =
-                            datos[2]
-                                    + event.getSceneX()
-                                    - datos[0];
+            double nuevoX =
+                    datos[2]
+                            + event.getSceneX()
+                            - datos[0];
 
-                    double nuevoY =
-                            datos[3]
-                                    + event.getSceneY()
-                                    - datos[1];
+            double nuevoY =
+                    datos[3]
+                            + event.getSceneY()
+                            - datos[1];
 
-                    if (nuevoX < 30) {
-                        nuevoX = 30;
-                    }
 
-                    if (nuevoY < 30) {
-                        nuevoY = 30;
-                    }
+            if (nuevoX < 30) {
+                nuevoX = 30;
+            }
 
-                    nodo.setX(nuevoX);
-                    nodo.setY(nuevoY);
+            if (nuevoY < 30) {
+                nuevoY = 30;
+            }
 
-                    circulo.setCenterX(
-                            nuevoX
-                    );
+            if (panelGrafo.getWidth() > 0 &&
+                    nuevoX > panelGrafo.getWidth() - 30) {
 
-                    circulo.setCenterY(
-                            nuevoY
-                    );
+                nuevoX = panelGrafo.getWidth() - 30;
+            }
 
-                    texto.setX(
-                            nuevoX - 5
-                    );
+            if (panelGrafo.getHeight() > 0 &&
+                    nuevoY > panelGrafo.getHeight() - 30) {
 
-                    texto.setY(
-                            nuevoY + 6
-                    );
+                nuevoY = panelGrafo.getHeight() - 30;
+            }
 
-                    actualizarAristasVisuales();
 
-                    event.consume();
-                }
-        );
+            nodo.setX(nuevoX);
+            nodo.setY(nuevoY);
+
+            circulo.setCenterX(nuevoX);
+            circulo.setCenterY(nuevoY);
+
+            texto.setX(nuevoX - 5);
+            texto.setY(nuevoY + 6);
+
+            actualizarAristasVisuales();
+
+            event.consume();
+        });
     }
 
-    private void seleccionarNodo(
-            Nodo nodo) {
+
+    // =========================================================
+    // SELECCIONAR NODOS
+    // =========================================================
+
+    private void seleccionarNodo(Nodo nodo) {
 
         if (nodoSeleccionado == null) {
 
             nodoSeleccionado = nodo;
 
-            circulos.get(nodo)
-                    .setFill(
-                            Color.LIGHTBLUE
-                    );
+            circulos.get(nodo).setFill(
+                    Color.LIGHTBLUE
+            );
 
             lblEstado.setText(
                     "Nodo "
@@ -281,12 +267,12 @@ public class GrafoController {
             return;
         }
 
+
         if (nodoSeleccionado == nodo) {
 
-            circulos.get(nodo)
-                    .setFill(
-                            Color.WHITE
-                    );
+            circulos.get(nodo).setFill(
+                    Color.WHITE
+            );
 
             nodoSeleccionado = null;
 
@@ -297,11 +283,17 @@ public class GrafoController {
             return;
         }
 
+
         pedirPeso(
                 nodoSeleccionado,
                 nodo
         );
     }
+
+
+    // =========================================================
+    // PEDIR PESO
+    // =========================================================
 
     private void pedirPeso(
             Nodo nodo1,
@@ -325,100 +317,105 @@ public class GrafoController {
                 "Ingrese el peso:"
         );
 
-        dialog.showAndWait()
-                .ifPresent(
-                        respuesta -> {
 
-                            try {
+        dialog.showAndWait().ifPresent(respuesta -> {
 
-                                int peso =
-                                        Integer.parseInt(
-                                                respuesta
-                                        );
+            try {
 
-                                if (peso <= 0) {
+                int peso =
+                        Integer.parseInt(
+                                respuesta.trim()
+                        );
 
-                                    mostrarError(
-                                            "El peso debe ser mayor que 0."
-                                    );
 
-                                    return;
-                                }
+                if (peso <= 0) {
 
-                                boolean conectado =
-                                        grafo.conectar(
-                                                nodo1,
-                                                nodo2,
-                                                peso
-                                        );
+                    mostrarError(
+                            "El peso debe ser mayor que 0."
+                    );
 
-                                if (!conectado) {
+                    return;
+                }
 
-                                    mostrarError(
-                                            "Esos nodos ya están conectados."
-                                    );
 
-                                    return;
-                                }
+                boolean conectado =
+                        grafo.conectar(
+                                nodo1,
+                                nodo2,
+                                peso
+                        );
 
-                                Arista arista =
-                                        grafo.getAristas()
-                                                .get(
-                                                        grafo.getAristas()
-                                                                .size() - 1
-                                                );
 
-                                crearVisualArista(
-                                        arista
-                                );
+                if (!conectado) {
 
-                                lblEstado.setText(
-                                        "Arista creada con peso "
-                                                + peso
-                                                + "."
-                                );
+                    mostrarError(
+                            "Esos nodos ya están conectados."
+                    );
 
-                                actualizarResultados();
+                    return;
+                }
 
-                            } catch (
-                                    NumberFormatException e) {
 
-                                mostrarError(
-                                        "Ingrese un peso entero válido."
-                                );
-                            }
-                        }
+                Arista arista =
+                        grafo.getAristas().get(
+                                grafo.getAristas().size() - 1
+                        );
+
+
+                crearVisualArista(arista);
+
+
+                lblEstado.setText(
+                        "Arista creada con peso "
+                                + peso
+                                + "."
                 );
+
+
+                actualizarResultados();
+
+            } catch (NumberFormatException e) {
+
+                mostrarError(
+                        "Ingrese un peso entero válido."
+                );
+            }
+        });
+
 
         restaurarSeleccion();
     }
 
-    private void crearVisualArista(
-            Arista arista) {
 
-        Line linea =
-                new Line(
-                        arista.getNodo1().getX(),
-                        arista.getNodo1().getY(),
-                        arista.getNodo2().getX(),
-                        arista.getNodo2().getY()
-                );
+    // =========================================================
+    // CREAR VISUAL DE ARISTA
+    // =========================================================
+
+    private void crearVisualArista(Arista arista) {
+
+        Line linea = new Line(
+                arista.getNodo1().getX(),
+                arista.getNodo1().getY(),
+                arista.getNodo2().getX(),
+                arista.getNodo2().getY()
+        );
 
         linea.setStrokeWidth(2);
 
-        Text peso =
-                new Text(
-                        calcularXMedio(arista),
-                        calcularYMedio(arista),
-                        String.valueOf(
-                                arista.getPeso()
-                        )
-                );
+
+        Text peso = new Text(
+                calcularXMedio(arista),
+                calcularYMedio(arista),
+                String.valueOf(
+                        arista.getPeso()
+                )
+        );
 
         peso.setStyle(
                 "-fx-font-size: 15px;" +
                         "-fx-font-weight: bold;"
         );
+
 
         lineas.put(
                 arista,
@@ -430,20 +427,21 @@ public class GrafoController {
                 peso
         );
 
-        panelGrafo.getChildren()
-                .add(
-                        0,
-                        linea
-                );
 
-        panelGrafo.getChildren()
-                .add(
-                        peso
-                );
+        // Las líneas van detrás de los nodos
+        panelGrafo.getChildren().add(
+                0,
+                linea
+        );
+
+        // El peso va encima de la línea
+        panelGrafo.getChildren().add(
+                peso
+        );
     }
 
-    private double calcularXMedio(
-            Arista arista) {
+
+    private double calcularXMedio(Arista arista) {
 
         return (
                 arista.getNodo1().getX()
@@ -452,8 +450,8 @@ public class GrafoController {
         ) / 2;
     }
 
-    private double calcularYMedio(
-            Arista arista) {
+
+    private double calcularYMedio(Arista arista) {
 
         return (
                 arista.getNodo1().getY()
@@ -462,16 +460,19 @@ public class GrafoController {
         ) / 2;
     }
 
+
+    // =========================================================
+    // ACTUALIZAR ARISTAS CUANDO SE MUEVE UN NODO
+    // =========================================================
+
     private void actualizarAristasVisuales() {
 
-        for (Arista arista :
-                grafo.getAristas()) {
+        for (Arista arista : grafo.getAristas()) {
 
-            Line linea =
-                    lineas.get(arista);
+            Line linea = lineas.get(arista);
 
-            Text peso =
-                    textosPesos.get(arista);
+            Text peso = textosPesos.get(arista);
+
 
             if (linea != null) {
 
@@ -492,6 +493,7 @@ public class GrafoController {
                 );
             }
 
+
             if (peso != null) {
 
                 peso.setX(
@@ -505,27 +507,40 @@ public class GrafoController {
         }
     }
 
+
+    // =========================================================
+    // RESTAURAR SELECCIÓN
+    // =========================================================
+
     private void restaurarSeleccion() {
 
         if (nodoSeleccionado != null) {
 
-            circulos.get(
-                    nodoSeleccionado
-            ).setFill(
-                    Color.WHITE
-            );
+            Circle circulo =
+                    circulos.get(nodoSeleccionado);
+
+            if (circulo != null) {
+
+                circulo.setFill(
+                        Color.WHITE
+                );
+            }
         }
 
         nodoSeleccionado = null;
     }
+
+
+    // =========================================================
+    // LIMPIAR GRAFO
+    // =========================================================
 
     @FXML
     private void limpiarGrafo() {
 
         grafo.limpiar();
 
-        panelGrafo.getChildren()
-                .clear();
+        panelGrafo.getChildren().clear();
 
         circulos.clear();
         textos.clear();
@@ -533,6 +548,9 @@ public class GrafoController {
         textosPesos.clear();
 
         nodoSeleccionado = null;
+
+        modoAgregarNodo = false;
+
 
         lblEstado.setText(
                 "Grafo limpio."
@@ -549,9 +567,13 @@ public class GrafoController {
         );
     }
 
+
+    // =========================================================
+    // GENERAR MATRIZ
+    // =========================================================
+
     @FXML
-    private void generarMatriz()
-            throws Exception {
+    private void generarMatriz() throws Exception {
 
         if (grafo.getNodos().isEmpty()) {
 
@@ -562,31 +584,40 @@ public class GrafoController {
             return;
         }
 
+
         int[][] matriz =
                 grafo.generarMatriz();
+
 
         FXMLLoader loader =
                 new FXMLLoader(
                         getClass().getResource(
-                                "/cr.ac.una.est.lab1est/matriz.fxml"
+                                "/cr/ac/una/est/lab1est/matriz.fxml"
                         )
                 );
 
+
         Scene scene =
-                new Scene(loader.load());
+                new Scene(
+                        loader.load()
+                );
+
 
         MatrizController controller =
                 loader.getController();
+
 
         controller.cargarMatriz(
                 matriz
         );
 
+
         scene.getStylesheets().add(
                 getClass().getResource(
-                        "/cr.ac.una.est.lab1est/estilos.css"
+                        "/cr/ac/una/est/lab1est/estilos.css"
                 ).toExternalForm()
         );
+
 
         Stage stage =
                 new Stage();
@@ -603,15 +634,19 @@ public class GrafoController {
         stage.show();
     }
 
+
+    // =========================================================
+    // ACTUALIZAR RESULTADOS
+    // =========================================================
+
     private void actualizarResultados() {
 
         StringBuilder texto =
                 new StringBuilder();
 
-        for (Map.Entry<Integer, List<String>>
-                entrada :
-                grafo.listaAdyacencia()
-                        .entrySet()) {
+
+        for (Map.Entry<Integer, List<String>> entrada :
+                grafo.listaAdyacencia().entrySet()) {
 
             texto.append(
                     "Nodo "
@@ -625,8 +660,8 @@ public class GrafoController {
                     " -> "
             );
 
-            if (entrada.getValue()
-                    .isEmpty()) {
+
+            if (entrada.getValue().isEmpty()) {
 
                 texto.append(
                         "sin conexiones"
@@ -645,9 +680,11 @@ public class GrafoController {
             texto.append("\n");
         }
 
+
         txtLista.setText(
                 texto.toString()
         );
+
 
         if (!grafo.getNodos().isEmpty()) {
 
@@ -673,74 +710,100 @@ public class GrafoController {
         }
     }
 
-    public void cargarMatriz(
-            int[][] matriz) {
+
+    // =========================================================
+    // CARGAR MATRIZ
+    // =========================================================
+
+    public void cargarMatriz(int[][] matriz) {
 
         limpiarGrafo();
+
 
         grafo.cargarMatriz(
                 matriz
         );
 
+
         colocarNodosAutomaticamente();
 
-        for (Arista arista :
-                grafo.getAristas()) {
 
-            crearVisualArista(
-                    arista
-            );
+        /*
+         * Primero creamos los nodos.
+         * Después creamos las aristas.
+         * Así las líneas quedan correctamente detrás
+         * de los nodos.
+         */
+
+        for (Nodo nodo : grafo.getNodos()) {
+
+            crearVisualNodo(nodo);
         }
 
-        for (Nodo nodo :
-                grafo.getNodos()) {
 
-            crearVisualNodo(
-                    nodo
-            );
+        for (Arista arista : grafo.getAristas()) {
+
+            crearVisualArista(arista);
         }
+
 
         actualizarResultados();
     }
+
+
+    // =========================================================
+    // COLOCAR NODOS AUTOMÁTICAMENTE
+    // =========================================================
 
     private void colocarNodosAutomaticamente() {
 
         int cantidad =
                 grafo.getNodos().size();
 
+
+        if (cantidad == 0) {
+            return;
+        }
+
+
         double centroX = 390;
         double centroY = 280;
         double radio = 200;
 
-        for (int i = 0;
-             i < cantidad;
-             i++) {
+
+        for (int i = 0; i < cantidad; i++) {
 
             Nodo nodo =
-                    grafo.getNodos()
-                            .get(i);
+                    grafo.getNodos().get(i);
+
 
             double angulo =
-                    2 * Math.PI * i
-                            / cantidad;
+                    2 * Math.PI * i / cantidad;
+
 
             double x =
                     centroX
                             + radio
                             * Math.cos(angulo);
 
+
             double y =
                     centroY
                             + radio
                             * Math.sin(angulo);
+
 
             nodo.setX(x);
             nodo.setY(y);
         }
     }
 
-    private void mostrarError(
-            String mensaje) {
+
+    // =========================================================
+    // MOSTRAR ERROR
+    // =========================================================
+
+    private void mostrarError(String mensaje) {
 
         Alert alerta =
                 new Alert(

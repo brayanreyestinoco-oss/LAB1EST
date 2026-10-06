@@ -11,16 +11,16 @@ public class Main extends Application {
     public void start(Stage stage) throws Exception {
 
         FXMLLoader loader = new FXMLLoader(
-                getClass().getResource(
-                        "/cr.ac.una.est.lab1est/menu.fxml"
+                Main.class.getResource(
+                        "/cr/ac/una/est/lab1est/menu.fxml"
                 )
         );
 
         Scene scene = new Scene(loader.load());
 
         scene.getStylesheets().add(
-                getClass().getResource(
-                        "/cr.ac.una.est.lab1est/estilos.css"
+                Main.class.getResource(
+                        "/cr/ac/una/est/lab1est/estilos.css"
                 ).toExternalForm()
         );
 

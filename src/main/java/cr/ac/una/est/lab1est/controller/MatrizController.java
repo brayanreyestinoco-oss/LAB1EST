@@ -1,11 +1,15 @@
 package cr.ac.una.est.lab1est.controller;
 
 import cr.ac.una.est.lab1est.model.Grafo;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
@@ -30,6 +34,7 @@ public class MatrizController {
     @FXML
     private Label lblDFS;
 
+
     private final List<List<TextField>> campos =
             new ArrayList<>();
 
@@ -37,18 +42,21 @@ public class MatrizController {
 
     private boolean sincronizando = false;
 
+
+    // =========================================================
+    // GENERAR MATRIZ
+    // =========================================================
+
     @FXML
     private void generarMatriz() {
 
         try {
 
-            cantidad =
-                    Integer.parseInt(
-                            txtCantidad.getText()
-                    );
+            cantidad = Integer.parseInt(
+                    txtCantidad.getText().trim()
+            );
 
-            if (cantidad < 1 ||
-                    cantidad > 15) {
+            if (cantidad < 1 || cantidad > 15) {
 
                 mostrarError(
                         "La cantidad debe estar entre 1 y 15."
@@ -59,6 +67,8 @@ public class MatrizController {
 
             crearMatriz();
 
+            limpiarResultados();
+
         } catch (NumberFormatException e) {
 
             mostrarError(
@@ -67,12 +77,21 @@ public class MatrizController {
         }
     }
 
+
+    // =========================================================
+    // CREAR MATRIZ
+    // =========================================================
+
     private void crearMatriz() {
 
         gridMatriz.getChildren().clear();
 
         campos.clear();
 
+        sincronizando = false;
+
+
+        // Encabezados
         for (int i = 0; i < cantidad; i++) {
 
             Label columna =
@@ -80,8 +99,9 @@ public class MatrizController {
                             String.valueOf(i + 1)
                     );
 
-            columna.getStyleClass()
-                    .add("encabezado-matriz");
+            columna.getStyleClass().add(
+                    "encabezado-matriz"
+            );
 
             gridMatriz.add(
                     columna,
@@ -89,13 +109,15 @@ public class MatrizController {
                     0
             );
 
+
             Label fila =
                     new Label(
                             String.valueOf(i + 1)
                     );
 
-            fila.getStyleClass()
-                    .add("encabezado-matriz");
+            fila.getStyleClass().add(
+                    "encabezado-matriz"
+            );
 
             gridMatriz.add(
                     fila,
@@ -104,14 +126,15 @@ public class MatrizController {
             );
         }
 
+
+        // Celdas
         for (int i = 0; i < cantidad; i++) {
 
             List<TextField> fila =
                     new ArrayList<>();
 
-            for (int j = 0;
-                 j < cantidad;
-                 j++) {
+
+            for (int j = 0; j < cantidad; j++) {
 
                 TextField campo =
                         new TextField("0");
@@ -123,13 +146,17 @@ public class MatrizController {
                         Pos.CENTER
                 );
 
+
+                // La diagonal siempre es 0
                 if (i == j) {
 
                     campo.setDisable(true);
                 }
 
+
                 final int filaActual = i;
                 final int columnaActual = j;
+
 
                 campo.textProperty().addListener(
                         (obs, anterior, nuevo) -> {
@@ -138,26 +165,38 @@ public class MatrizController {
                                 return;
                             }
 
+
+                            // Permitir borrar temporalmente
                             if (nuevo.isEmpty()) {
                                 return;
                             }
 
+
                             try {
 
                                 int valor =
-                                        Integer.parseInt(nuevo);
+                                        Integer.parseInt(
+                                                nuevo
+                                        );
 
+
+                                // No se permiten negativos
                                 if (valor < 0) {
+
+                                    sincronizando = true;
 
                                     campo.setText(
                                             anterior
                                     );
 
+                                    sincronizando = false;
+
                                     return;
                                 }
 
-                                if (filaActual !=
-                                        columnaActual) {
+
+                                // Mantener matriz simétrica
+                                if (filaActual != columnaActual) {
 
                                     sincronizar(
                                             filaActual,
@@ -168,14 +207,20 @@ public class MatrizController {
 
                             } catch (NumberFormatException e) {
 
+                                sincronizando = true;
+
                                 campo.setText(
                                         anterior
                                 );
+
+                                sincronizando = false;
                             }
                         }
                 );
 
+
                 fila.add(campo);
+
 
                 gridMatriz.add(
                         campo,
@@ -184,9 +229,15 @@ public class MatrizController {
                 );
             }
 
+
             campos.add(fila);
         }
     }
+
+
+    // =========================================================
+    // SINCRONIZAR MATRIZ SIMÉTRICA
+    // =========================================================
 
     private void sincronizar(
             int fila,
@@ -206,10 +257,16 @@ public class MatrizController {
         sincronizando = false;
     }
 
+
+    // =========================================================
+    // OBTENER MATRIZ
+    // =========================================================
+
     private int[][] obtenerMatriz() {
 
         int[][] matriz =
                 new int[cantidad][cantidad];
+
 
         for (int i = 0; i < cantidad; i++) {
 
@@ -218,7 +275,9 @@ public class MatrizController {
                 String valor =
                         campos.get(i)
                                 .get(j)
-                                .getText();
+                                .getText()
+                                .trim();
+
 
                 if (valor.isEmpty()) {
 
@@ -226,20 +285,40 @@ public class MatrizController {
 
                 } else {
 
-                    matriz[i][j] =
-                            Integer.parseInt(valor);
+                    try {
+
+                        int numero =
+                                Integer.parseInt(valor);
+
+                        if (numero < 0) {
+                            numero = 0;
+                        }
+
+                        matriz[i][j] = numero;
+
+                    } catch (NumberFormatException e) {
+
+                        matriz[i][j] = 0;
+                    }
                 }
             }
         }
 
+
         return matriz;
     }
+
+
+    // =========================================================
+    // MATRIZ → GRAFO
+    // =========================================================
 
     @FXML
     private void dibujarGrafo()
             throws Exception {
 
-        if (cantidad == 0) {
+        if (cantidad == 0 ||
+                campos.isEmpty()) {
 
             mostrarError(
                     "Primero genere la matriz."
@@ -248,29 +327,56 @@ public class MatrizController {
             return;
         }
 
+
         int[][] matriz =
                 obtenerMatriz();
+
 
         FXMLLoader loader =
                 new FXMLLoader(
                         getClass().getResource(
-                                "/cr.ac.una.est.lab1est/grafo.fxml"
+                                "/cr/ac/una/est/lab1est/grafo.fxml"
                         )
                 );
 
+
+        if (loader.getLocation() == null) {
+
+            throw new IllegalStateException(
+                    "No se encontró grafo.fxml. " +
+                            "Revise src/main/resources/cr/ac/una/est/lab1est/"
+            );
+        }
+
+
         Scene scene =
-                new Scene(loader.load());
+                new Scene(
+                        loader.load()
+                );
+
 
         GrafoController controller =
                 loader.getController();
 
-        controller.cargarMatriz(matriz);
 
-        scene.getStylesheets().add(
-                getClass().getResource(
-                        "/cr.ac.una.est.lab1est/estilos.css"
-                ).toExternalForm()
+        controller.cargarMatriz(
+                matriz
         );
+
+
+        var css =
+                getClass().getResource(
+                        "/cr/ac/una/est/lab1est/estilos.css"
+                );
+
+
+        if (css != null) {
+
+            scene.getStylesheets().add(
+                    css.toExternalForm()
+            );
+        }
+
 
         Stage stage =
                 new Stage();
@@ -287,10 +393,16 @@ public class MatrizController {
         stage.show();
     }
 
+
+    // =========================================================
+    // CALCULAR RESULTADOS
+    // =========================================================
+
     @FXML
     private void generarResultados() {
 
-        if (cantidad == 0) {
+        if (cantidad == 0 ||
+                campos.isEmpty()) {
 
             mostrarError(
                     "Primero genere la matriz."
@@ -299,35 +411,67 @@ public class MatrizController {
             return;
         }
 
-        Grafo grafo =
-                new Grafo();
 
-        grafo.cargarMatriz(
-                obtenerMatriz()
-        );
+        try {
 
-        mostrarResultados(grafo);
+            int[][] matriz =
+                    obtenerMatriz();
+
+
+            Grafo grafo =
+                    new Grafo();
+
+
+            grafo.cargarMatriz(
+                    matriz
+            );
+
+
+            mostrarResultados(
+                    grafo
+            );
+
+        } catch (Exception e) {
+
+            mostrarError(
+                    "No se pudo procesar la matriz."
+            );
+        }
     }
+
+
+    // =========================================================
+    // CARGAR MATRIZ DESDE EL GRAFO
+    // =========================================================
 
     public void cargarMatriz(
             int[][] matriz) {
 
+        if (matriz == null ||
+                matriz.length == 0) {
+
+            return;
+        }
+
+
         cantidad =
                 matriz.length;
+
 
         txtCantidad.setText(
                 String.valueOf(cantidad)
         );
 
+
         crearMatriz();
 
-        for (int i = 0;
-             i < cantidad;
-             i++) {
 
-            for (int j = 0;
-                 j < cantidad;
-                 j++) {
+        sincronizando = true;
+
+
+        for (int i = 0; i < cantidad; i++) {
+
+            for (int j = 0; j < cantidad; j++) {
 
                 campos.get(i)
                         .get(j)
@@ -339,13 +483,28 @@ public class MatrizController {
             }
         }
 
+
+        sincronizando = false;
+
+
         Grafo grafo =
                 new Grafo();
 
-        grafo.cargarMatriz(matriz);
 
-        mostrarResultados(grafo);
+        grafo.cargarMatriz(
+                matriz
+        );
+
+
+        mostrarResultados(
+                grafo
+        );
     }
+
+
+    // =========================================================
+    // MOSTRAR RESULTADOS
+    // =========================================================
 
     private void mostrarResultados(
             Grafo grafo) {
@@ -353,10 +512,9 @@ public class MatrizController {
         StringBuilder texto =
                 new StringBuilder();
 
-        for (Map.Entry<Integer, List<String>>
-                entrada :
-                grafo.listaAdyacencia()
-                        .entrySet()) {
+
+        for (Map.Entry<Integer, List<String>> entrada :
+                grafo.listaAdyacencia().entrySet()) {
 
             texto.append("Nodo ")
                     .append(
@@ -364,8 +522,8 @@ public class MatrizController {
                     )
                     .append(" -> ");
 
-            if (entrada.getValue()
-                    .isEmpty()) {
+
+            if (entrada.getValue().isEmpty()) {
 
                 texto.append(
                         "sin conexiones"
@@ -381,12 +539,15 @@ public class MatrizController {
                 );
             }
 
+
             texto.append("\n");
         }
+
 
         txtLista.setText(
                 texto.toString()
         );
+
 
         if (!grafo.getNodos().isEmpty()) {
 
@@ -412,6 +573,29 @@ public class MatrizController {
         }
     }
 
+
+    // =========================================================
+    // LIMPIAR RESULTADOS
+    // =========================================================
+
+    private void limpiarResultados() {
+
+        txtLista.clear();
+
+        lblBFS.setText(
+                "Anchura (BFS): -"
+        );
+
+        lblDFS.setText(
+                "Profundidad (DFS): -"
+        );
+    }
+
+
+    // =========================================================
+    // MOSTRAR ERROR
+    // =========================================================
+
     private void mostrarError(
             String mensaje) {
 
@@ -420,9 +604,16 @@ public class MatrizController {
                         Alert.AlertType.ERROR
                 );
 
-        alerta.setTitle("Error");
+        alerta.setTitle(
+                "Error"
+        );
+
         alerta.setHeaderText(null);
-        alerta.setContentText(mensaje);
+
+        alerta.setContentText(
+                mensaje
+        );
+
         alerta.showAndWait();
     }
 }
