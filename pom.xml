@@ -8,7 +8,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cr.ac.una.est</groupId>
-    <artifactId>GrafosJavaFX</artifactId>
+    <artifactId>lab1est</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -36,7 +36,9 @@
                 <version>0.0.8</version>
 
                 <configuration>
-                    <mainClass>cr.ac.una.est.Main</mainClass>
+                    <mainClass>
+                        cr.ac.una.est.lab1est/cr.ac.una.est.lab1est.Main
+                    </mainClass>
                 </configuration>
 
             </plugin>
