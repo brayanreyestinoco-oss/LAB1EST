@@ -1,10 +1,6 @@
 package cr.ac.una.est.lab1est.model;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 public class Grafo {
 
@@ -12,10 +8,8 @@ public class Grafo {
     private final List<Arista> aristas;
 
     public Grafo() {
-
         nodos = new ArrayList<>();
         aristas = new ArrayList<>();
-
     }
 
     public List<Nodo> getNodos() {
@@ -26,38 +20,23 @@ public class Grafo {
         return aristas;
     }
 
-    // =====================================================
-    // AGREGAR NODO
-    // =====================================================
+    public Nodo agregarNodo(double x, double y) {
 
-    public Nodo agregarNodo(
-            double x,
-            double y
-    ) {
-
-        int numero =
-                nodos.size() + 1;
-
-        Nodo nodo =
-                new Nodo(
-                        numero,
-                        x,
-                        y
-                );
+        Nodo nodo = new Nodo(
+                nodos.size() + 1,
+                x,
+                y
+        );
 
         nodos.add(nodo);
 
         return nodo;
     }
 
-    // =====================================================
-    // CONECTAR NODOS
-    // =====================================================
-
     public boolean conectar(
             Nodo nodo1,
-            Nodo nodo2
-    ) {
+            Nodo nodo2,
+            int peso) {
 
         if (nodo1 == null || nodo2 == null) {
             return false;
@@ -67,45 +46,36 @@ public class Grafo {
             return false;
         }
 
+        if (peso <= 0) {
+            return false;
+        }
+
         if (existeConexion(nodo1, nodo2)) {
             return false;
         }
 
-        Arista arista =
+        aristas.add(
                 new Arista(
                         nodo1,
-                        nodo2
-                );
-
-        aristas.add(arista);
+                        nodo2,
+                        peso
+                )
+        );
 
         return true;
     }
 
-    // =====================================================
-    // VERIFICAR CONEXIÓN
-    // =====================================================
-
     public boolean existeConexion(
             Nodo nodo1,
-            Nodo nodo2
-    ) {
+            Nodo nodo2) {
 
         for (Arista arista : aristas) {
 
-            if (
-                    (
-                            arista.getNodo1() == nodo1
-                                    &&
-                                    arista.getNodo2() == nodo2
-                    )
-                            ||
-                            (
-                                    arista.getNodo1() == nodo2
-                                            &&
-                                            arista.getNodo2() == nodo1
-                            )
-            ) {
+            if ((arista.getNodo1() == nodo1
+                    && arista.getNodo2() == nodo2)
+                    ||
+                    (arista.getNodo1() == nodo2
+                            && arista.getNodo2() == nodo1)) {
 
                 return true;
             }
@@ -114,14 +84,9 @@ public class Grafo {
         return false;
     }
 
-    // =====================================================
-    // MATRIZ DE ADYACENCIA
-    // =====================================================
-
     public int[][] generarMatriz() {
 
-        int cantidad =
-                nodos.size();
+        int cantidad = nodos.size();
 
         int[][] matriz =
                 new int[cantidad][cantidad];
@@ -129,290 +94,216 @@ public class Grafo {
         for (Arista arista : aristas) {
 
             int i =
-                    arista
-                            .getNodo1()
-                            .getNumero() - 1;
+                    arista.getNodo1().getNumero() - 1;
 
             int j =
-                    arista
-                            .getNodo2()
-                            .getNumero() - 1;
+                    arista.getNodo2().getNumero() - 1;
 
-            matriz[i][j] = 1;
-            matriz[j][i] = 1;
+            matriz[i][j] =
+                    arista.getPeso();
+
+            matriz[j][i] =
+                    arista.getPeso();
         }
 
         return matriz;
     }
 
-    // =====================================================
-    // LISTA DE ADYACENCIA
-    // =====================================================
+    public void cargarMatriz(int[][] matriz) {
 
-    public String generarListaAdyacencia() {
+        limpiar();
 
-        if (nodos.isEmpty()) {
+        int cantidad = matriz.length;
 
-            return "No hay nodos en el grafo.";
+        for (int i = 0; i < cantidad; i++) {
+
+            agregarNodo(0, 0);
         }
 
-        StringBuilder resultado =
-                new StringBuilder();
+        for (int i = 0; i < cantidad; i++) {
+
+            for (int j = i + 1;
+                 j < cantidad;
+                 j++) {
+
+                if (matriz[i][j] > 0) {
+
+                    conectar(
+                            nodos.get(i),
+                            nodos.get(j),
+                            matriz[i][j]
+                    );
+                }
+            }
+        }
+    }
+
+    public Map<Integer, List<String>>
+    listaAdyacencia() {
+
+        Map<Integer, List<String>> lista =
+                new LinkedHashMap<>();
 
         for (Nodo nodo : nodos) {
 
-            resultado
-                    .append("Nodo ")
-                    .append(nodo.getNumero())
-                    .append(": ");
-
-            List<Integer> vecinos =
-                    obtenerVecinos(nodo);
-
-            if (vecinos.isEmpty()) {
-
-                resultado.append(
-                        "sin conexiones"
-                );
-
-            } else {
-
-                for (
-                        int i = 0;
-                        i < vecinos.size();
-                        i++
-                ) {
-
-                    resultado.append(
-                            vecinos.get(i)
-                    );
-
-                    if (
-                            i <
-                                    vecinos.size() - 1
-                    ) {
-
-                        resultado.append(
-                                " → "
-                        );
-                    }
-                }
-            }
-
-            resultado.append("\n");
+            lista.put(
+                    nodo.getNumero(),
+                    new ArrayList<>()
+            );
         }
-
-        return resultado.toString();
-    }
-
-    private List<Integer> obtenerVecinos(
-            Nodo nodo
-    ) {
-
-        List<Integer> vecinos =
-                new ArrayList<>();
 
         for (Arista arista : aristas) {
 
-            if (
-                    arista.getNodo1()
-                            == nodo
-            ) {
+            int a =
+                    arista.getNodo1().getNumero();
 
-                vecinos.add(
-                        arista
-                                .getNodo2()
-                                .getNumero()
-                );
+            int b =
+                    arista.getNodo2().getNumero();
 
-            } else if (
-                    arista.getNodo2()
-                            == nodo
-            ) {
+            int peso =
+                    arista.getPeso();
 
-                vecinos.add(
-                        arista
-                                .getNodo1()
-                                .getNumero()
-                );
-            }
+            lista.get(a).add(
+                    b + "(" + peso + ")"
+            );
+
+            lista.get(b).add(
+                    a + "(" + peso + ")"
+            );
         }
 
-        Collections.sort(vecinos);
-
-        return vecinos;
+        return lista;
     }
 
-    // =====================================================
-    // RECORRIDO POR ANCHURA - BFS
-    // =====================================================
-
-    public String recorridoAnchura(
-            int nodoInicial
-    ) {
-
-        if (nodos.isEmpty()) {
-
-            return "No hay nodos.";
-        }
-
-        if (
-                nodoInicial < 1
-                        ||
-                        nodoInicial > nodos.size()
-        ) {
-
-            return "Nodo inicial inválido.";
-        }
-
-        boolean[] visitado =
-                new boolean[nodos.size()];
-
-        Queue<Integer> cola =
-                new LinkedList<>();
+    public List<Integer> recorridoAnchura(
+            int inicio) {
 
         List<Integer> recorrido =
                 new ArrayList<>();
 
-        cola.add(nodoInicial);
+        if (nodos.isEmpty()) {
+            return recorrido;
+        }
 
-        visitado[nodoInicial - 1] =
-                true;
+        Map<Integer, List<Integer>> lista =
+                obtenerVecinos();
+
+        if (!lista.containsKey(inicio)) {
+            return recorrido;
+        }
+
+        Set<Integer> visitados =
+                new HashSet<>();
+
+        Queue<Integer> cola =
+                new LinkedList<>();
+
+        cola.add(inicio);
+        visitados.add(inicio);
 
         while (!cola.isEmpty()) {
 
-            int actual =
-                    cola.poll();
+            int actual = cola.poll();
 
             recorrido.add(actual);
 
-            List<Integer> vecinos =
-                    obtenerVecinos(
-                            nodos.get(actual - 1)
-                    );
+            for (int vecino :
+                    lista.get(actual)) {
 
-            for (int vecino : vecinos) {
+                if (!visitados.contains(vecino)) {
 
-                if (
-                        !visitado[vecino - 1]
-                ) {
-
-                    visitado[vecino - 1] =
-                            true;
-
+                    visitados.add(vecino);
                     cola.add(vecino);
                 }
             }
         }
 
-        return convertirRecorrido(
-                recorrido
-        );
+        return recorrido;
     }
 
-    // =====================================================
-    // RECORRIDO POR PROFUNDIDAD - DFS
-    // =====================================================
-
-    public String recorridoProfundidad(
-            int nodoInicial
-    ) {
-
-        if (nodos.isEmpty()) {
-
-            return "No hay nodos.";
-        }
-
-        if (
-                nodoInicial < 1
-                        ||
-                        nodoInicial > nodos.size()
-        ) {
-
-            return "Nodo inicial inválido.";
-        }
-
-        boolean[] visitado =
-                new boolean[nodos.size()];
+    public List<Integer> recorridoProfundidad(
+            int inicio) {
 
         List<Integer> recorrido =
                 new ArrayList<>();
 
+        if (nodos.isEmpty()) {
+            return recorrido;
+        }
+
+        Map<Integer, List<Integer>> lista =
+                obtenerVecinos();
+
+        if (!lista.containsKey(inicio)) {
+            return recorrido;
+        }
+
+        Set<Integer> visitados =
+                new HashSet<>();
+
         dfs(
-                nodoInicial,
-                visitado,
+                inicio,
+                lista,
+                visitados,
                 recorrido
         );
 
-        return convertirRecorrido(
-                recorrido
-        );
+        return recorrido;
     }
 
     private void dfs(
             int actual,
-            boolean[] visitado,
-            List<Integer> recorrido
-    ) {
+            Map<Integer, List<Integer>> lista,
+            Set<Integer> visitados,
+            List<Integer> recorrido) {
 
-        visitado[actual - 1] = true;
+        visitados.add(actual);
 
         recorrido.add(actual);
 
-        List<Integer> vecinos =
-                obtenerVecinos(
-                        nodos.get(actual - 1)
-                );
+        for (int vecino :
+                lista.get(actual)) {
 
-        for (int vecino : vecinos) {
-
-            if (
-                    !visitado[vecino - 1]
-            ) {
+            if (!visitados.contains(vecino)) {
 
                 dfs(
                         vecino,
-                        visitado,
+                        lista,
+                        visitados,
                         recorrido
                 );
             }
         }
     }
 
-    private String convertirRecorrido(
-            List<Integer> recorrido
-    ) {
+    private Map<Integer, List<Integer>>
+    obtenerVecinos() {
 
-        StringBuilder resultado =
-                new StringBuilder();
+        Map<Integer, List<Integer>> lista =
+                new LinkedHashMap<>();
 
-        for (
-                int i = 0;
-                i < recorrido.size();
-                i++
-        ) {
+        for (Nodo nodo : nodos) {
 
-            resultado.append(
-                    recorrido.get(i)
+            lista.put(
+                    nodo.getNumero(),
+                    new ArrayList<>()
             );
-
-            if (
-                    i <
-                            recorrido.size() - 1
-            ) {
-
-                resultado.append(
-                        " → "
-                );
-            }
         }
 
-        return resultado.toString();
-    }
+        for (Arista arista : aristas) {
 
-    // =====================================================
-    // LIMPIAR
-    // =====================================================
+            int a =
+                    arista.getNodo1().getNumero();
+
+            int b =
+                    arista.getNodo2().getNumero();
+
+            lista.get(a).add(b);
+            lista.get(b).add(a);
+        }
+
+        return lista;
+    }
 
     public void limpiar() {
 

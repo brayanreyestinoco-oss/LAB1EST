@@ -1,31 +1,19 @@
 package cr.ac.una.est.lab1est.model;
 
-import javafx.scene.shape.Line;
-
 public class Arista {
 
     private final Nodo nodo1;
     private final Nodo nodo2;
-
-    private final Line linea;
+    private int peso;
 
     public Arista(
             Nodo nodo1,
-            Nodo nodo2
-    ) {
+            Nodo nodo2,
+            int peso) {
 
         this.nodo1 = nodo1;
         this.nodo2 = nodo2;
-
-        linea =
-                new Line(
-                        nodo1.getX(),
-                        nodo1.getY(),
-                        nodo2.getX(),
-                        nodo2.getY()
-                );
-
-        linea.setStrokeWidth(2);
+        this.peso = peso;
     }
 
     public Nodo getNodo1() {
@@ -36,26 +24,11 @@ public class Arista {
         return nodo2;
     }
 
-    public Line getLinea() {
-        return linea;
+    public int getPeso() {
+        return peso;
     }
 
-    public void actualizar() {
-
-        linea.setStartX(
-                nodo1.getX()
-        );
-
-        linea.setStartY(
-                nodo1.getY()
-        );
-
-        linea.setEndX(
-                nodo2.getX()
-        );
-
-        linea.setEndY(
-                nodo2.getY()
-        );
+    public void setPeso(int peso) {
+        this.peso = peso;
     }
 }

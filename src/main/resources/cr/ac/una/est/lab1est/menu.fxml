@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="cr.ac.una.est.lab1est.controller.MenuController"
+      alignment="CENTER"
+      spacing="25"
+      styleClass="contenedor-principal">
+
+    <padding>
+        <Insets top="50"
+                right="40"
+                bottom="50"
+                left="40"/>
+    </padding>
+
+    <Label text="SISTEMA DE GRAFOS"
+           styleClass="titulo"/>
+
+    <Label text="Grafos no dirigidos ponderados"
+           styleClass="subtitulo"/>
+
+    <Button text="Matriz de Adyacencia → Grafo"
+            onAction="#abrirMatriz"
+            prefWidth="380"
+            prefHeight="55"
+            styleClass="boton-principal"/>
+
+    <Button text="Dibujar Grafo → Matriz de Adyacencia"
+            onAction="#abrirGrafo"
+            prefWidth="380"
+            prefHeight="55"
+            styleClass="boton-principal"/>
+
+</VBox>

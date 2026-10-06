@@ -1,0 +1,59 @@
+.fondo {
+    -fx-background-color: #f4f6f8;
+}
+
+.contenedor-principal {
+    -fx-background-color: #f4f6f8;
+}
+
+.titulo {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+}
+
+.subtitulo {
+    -fx-font-size: 16px;
+}
+
+.titulo-seccion {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.titulo-pequeno {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.barra-superior {
+    -fx-background-color: white;
+}
+
+.boton-principal {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.boton {
+    -fx-font-size: 14px;
+}
+
+.panel-resultados {
+    -fx-background-color: white;
+    -fx-border-color: #dddddd;
+    -fx-border-width: 1;
+}
+
+.panel-grafo {
+    -fx-background-color: white;
+    -fx-border-color: #dddddd;
+    -fx-border-width: 1;
+}
+
+.encabezado-matriz {
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+    -fx-alignment: center;
+    -fx-min-width: 55px;
+    -fx-min-height: 40px;
+}
