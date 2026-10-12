@@ -57,3 +57,14 @@
     -fx-min-width: 55px;
     -fx-min-height: 40px;
 }
+
+.boton-salir {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-background-color: #c0392b;
+    -fx-text-fill: white;
+}
+
+.boton-salir:hover {
+    -fx-background-color: #a93226;
+}

@@ -4,7 +4,7 @@ public class Arista {
 
     private final Nodo nodo1;
     private final Nodo nodo2;
-    private int peso;
+    private final int peso;
 
     public Arista(
             Nodo nodo1,
@@ -26,9 +26,5 @@ public class Arista {
 
     public int getPeso() {
         return peso;
-    }
-
-    public void setPeso(int peso) {
-        this.peso = peso;
     }
 }

@@ -97,4 +97,25 @@
 
     </right>
 
+    <bottom>
+
+        <HBox alignment="CENTER_RIGHT">
+
+            <padding>
+                <Insets top="10"
+                        right="20"
+                        bottom="15"
+                        left="20"/>
+            </padding>
+
+            <Button text="← Volver"
+                    onAction="#volver"
+                    prefWidth="150"
+                    prefHeight="40"
+                    styleClass="boton-salir"/>
+
+        </HBox>
+
+    </bottom>
+
 </BorderPane>

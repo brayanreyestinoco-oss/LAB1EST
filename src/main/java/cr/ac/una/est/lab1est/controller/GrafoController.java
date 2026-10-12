@@ -1,11 +1,14 @@
 package cr.ac.una.est.lab1est.controller;
 
+import cr.ac.una.est.lab1est.Main;
 import cr.ac.una.est.lab1est.model.Arista;
 import cr.ac.una.est.lab1est.model.Grafo;
 import cr.ac.una.est.lab1est.model.Nodo;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
@@ -18,6 +21,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,8 +50,6 @@ public class GrafoController {
     private boolean modoAgregarNodo = false;
 
     private final Map<Nodo, Circle> circulos = new HashMap<>();
-
-    private final Map<Nodo, Text> textos = new HashMap<>();
 
     private final Map<Arista, Line> lineas = new HashMap<>();
 
@@ -139,8 +141,10 @@ public class GrafoController {
                         "-fx-font-weight: bold;"
         );
 
+        // Permite que los clics lleguen al círculo del nodo.
+        texto.setMouseTransparent(true);
+
         circulos.put(nodo, circulo);
-        textos.put(nodo, texto);
 
         panelGrafo.getChildren().addAll(
                 circulo,
@@ -416,6 +420,9 @@ public class GrafoController {
                         "-fx-font-weight: bold;"
         );
 
+        // El texto del peso no debe bloquear la selección de los nodos.
+        peso.setMouseTransparent(true);
+
 
         lineas.put(
                 arista,
@@ -543,7 +550,6 @@ public class GrafoController {
         panelGrafo.getChildren().clear();
 
         circulos.clear();
-        textos.clear();
         lineas.clear();
         textosPesos.clear();
 
@@ -573,7 +579,7 @@ public class GrafoController {
     // =========================================================
 
     @FXML
-    private void generarMatriz() throws Exception {
+    private void generarMatriz() throws IOException {
 
         if (grafo.getNodos().isEmpty()) {
 
@@ -589,18 +595,17 @@ public class GrafoController {
                 grafo.generarMatriz();
 
 
-        FXMLLoader loader =
-                new FXMLLoader(
-                        getClass().getResource(
-                                "/cr/ac/una/est/lab1est/matriz.fxml"
-                        )
-                );
+        var recursoMatriz = getClass().getResource(
+                "/cr/ac/una/est/lab1est/matriz.fxml"
+        );
 
+        if (recursoMatriz == null) {
+            mostrarError("No se encontró matriz.fxml en los recursos del proyecto.");
+            return;
+        }
 
-        Scene scene =
-                new Scene(
-                        loader.load()
-                );
+        FXMLLoader loader = new FXMLLoader(recursoMatriz);
+        Scene scene = new Scene(loader.load());
 
 
         MatrizController controller =
@@ -612,15 +617,19 @@ public class GrafoController {
         );
 
 
-        scene.getStylesheets().add(
-                getClass().getResource(
-                        "/cr/ac/una/est/lab1est/estilos.css"
-                ).toExternalForm()
+        var css = getClass().getResource(
+                "/cr/ac/una/est/lab1est/estilos.css"
         );
+        if (css != null) {
+            scene.getStylesheets().add(css.toExternalForm());
+        }
 
 
         Stage stage =
                 new Stage();
+
+        // Guarda esta ventana para poder regresar a ella con "Volver".
+        stage.setUserData(panelGrafo.getScene().getWindow());
 
         stage.setTitle(
                 "Matriz de Adyacencia"
@@ -632,6 +641,19 @@ public class GrafoController {
         stage.setMinHeight(700);
 
         stage.show();
+    }
+
+
+    // =========================================================
+    // VOLVER A LA VENTANA ANTERIOR
+    // =========================================================
+
+    @FXML
+    private void volver(ActionEvent event) {
+
+        Main.volver(
+                ((Node) event.getSource()).getScene().getWindow()
+        );
     }
 
 

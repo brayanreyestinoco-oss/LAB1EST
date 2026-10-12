@@ -37,4 +37,10 @@
             prefHeight="55"
             styleClass="boton-principal"/>
 
+    <Button text="Cerrar programa"
+            onAction="#cerrarPrograma"
+            prefWidth="380"
+            prefHeight="45"
+            styleClass="boton-salir"/>
+
 </VBox>
