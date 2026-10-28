@@ -7,7 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
+import cr.ac.una.est.lab1est.Main;
 import java.io.IOException;
 import java.net.URL;
 
@@ -75,14 +75,12 @@ public class MenuController {
         Stage stage = new Stage();
 
         // Guarda la ventana actual para poder regresar a ella con "Volver".
-        stage.setUserData(((Node) event.getSource()).getScene().getWindow());
-
         stage.setTitle(titulo);
         stage.setScene(scene);
 
         stage.setMinWidth(anchoMinimo);
         stage.setMinHeight(altoMinimo);
 
-        stage.show();
+        Main.cambiar(((Node) event.getSource()).getScene().getWindow(), stage);
     }
 }

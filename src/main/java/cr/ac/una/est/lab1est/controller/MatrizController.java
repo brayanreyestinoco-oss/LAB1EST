@@ -247,12 +247,11 @@ public class MatrizController {
             }
 
             Stage stage = new Stage();
-            stage.setUserData(txtCantidad.getScene().getWindow());
             stage.setTitle("Grafo generado desde la matriz");
             stage.setScene(scene);
             stage.setMinWidth(1150);
             stage.setMinHeight(750);
-            stage.show();
+            Main.cambiar(txtCantidad.getScene().getWindow(), stage);
 
         } catch (IllegalArgumentException e) {
             mostrarError(e.getMessage());

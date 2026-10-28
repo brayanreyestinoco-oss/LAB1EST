@@ -629,8 +629,6 @@ public class GrafoController {
                 new Stage();
 
         // Guarda esta ventana para poder regresar a ella con "Volver".
-        stage.setUserData(panelGrafo.getScene().getWindow());
-
         stage.setTitle(
                 "Matriz de Adyacencia"
         );
@@ -640,7 +638,7 @@ public class GrafoController {
         stage.setMinWidth(1050);
         stage.setMinHeight(700);
 
-        stage.show();
+        Main.cambiar(panelGrafo.getScene().getWindow(), stage);
     }
 
 
